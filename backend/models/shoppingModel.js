@@ -1,16 +1,44 @@
 import mongoose from "mongoose";
 
-const shoppingSchema= new mongoose.Schema({
-    itemName:{
-        type:String,
-        required:true
+const shoppingListSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: "User",
     },
-    qty:{
-        type:Number,
-        required:true
+    items: [
+        {
+            itemName: {
+                type: String,
+                required: true
+            },
+            quantity: {
+                type: Number,
+                required: true,
+                min: [1, "Quantity must be at least 1"]
+            }
+        }
+    ],
+    dateAdded: {
+        type: Date,
+        required: true,
+        validate: {
+            validator: function (value) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                return value >= today;
+            },
+            message: "Date cannot be in the past"
+        }
+    },
+    status: {
+        type: String,
+        enum: ["buy", "not"],
+        required: true,
+        default: "not"
     }
-})
+});
 
-const shoppingModel=mongoose.model.shoppingList ||mongoose.model("shoppingList",shoppingSchema);
+const shoppingListModel = mongoose.model("ShoppingList", shoppingListSchema);
 
-export default shoppingModel;
+export default shoppingListModel;
