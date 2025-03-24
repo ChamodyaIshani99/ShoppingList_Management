@@ -16,7 +16,10 @@ function AddItemPage() {
   };
 
   return (
-    <AddItemForm onAddItem={handleAddItem} />
+    <div>
+      <h2>Add New Item</h2>
+      <AddItemForm onAddItem={handleAddItem} />
+    </div>
   );
 }
 

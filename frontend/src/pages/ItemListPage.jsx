@@ -53,7 +53,6 @@ function ItemListPage() {
         onDelete={handleDeleteItem}
         onEdit={handleOpenModal}
       />
-
       <UpdateItemModal
         isOpen={modalIsOpen}
         item={selectedItem}
