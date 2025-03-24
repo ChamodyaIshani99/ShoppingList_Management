@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const AddItem = () => {
   const [userId, setUserId] = useState('');
   const [date, setDate] = useState('');
   const [state, setState] = useState('buy');
-  const [itemId, setItemId] = useState('');
+  const [itemName, setItemName] = useState('');
   const [quantity, setQuantity] = useState('');
   const [items, setItems] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
@@ -21,7 +22,7 @@ const AddItem = () => {
   const handleAddItem = (e) => {
     e.preventDefault();
 
-    if (!userId || !itemId || !quantity) {
+    if (!userId || !itemName || !quantity) {
       alert('Please fill all fields');
       return;
     }
@@ -32,13 +33,13 @@ const AddItem = () => {
     }
 
     const newItem = {
-      itemId,
+      itemName, // Include itemName here
       quantity
     };
 
     setItems([...items, newItem]);
-    setItemId('');
-    setQuantity('');
+    setItemName(''); // Clear itemName field
+    setQuantity(''); // Clear quantity field
   };
 
   const handleDelete = (index) => {
@@ -49,7 +50,7 @@ const AddItem = () => {
 
   const handleEdit = (index) => {
     const item = items[index];
-    setEditItemId(item.itemId);
+    setEditItemId(item.itemName);  // Set editItemId to itemName
     setEditQuantity(item.quantity);
     setEditIndex(index);
     setShowUpdateModal(true);
@@ -69,7 +70,7 @@ const AddItem = () => {
     }
 
     const updatedItems = [...items];
-    updatedItems[editIndex] = { itemId: editItemId, quantity: editQuantity };
+    updatedItems[editIndex] = { itemName: editItemId, quantity: editQuantity };
 
     setItems(updatedItems);
     setShowUpdateModal(false);
@@ -89,36 +90,6 @@ const AddItem = () => {
     } else {
       setDate(selectedDate);
     }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!userId || !date || !state || items.length === 0) {
-      alert('Please fill all fields and add at least one item before submitting!');
-      return;
-    }
-
-    // This is where you'd typically POST the data to your backend
-    const shoppingList = {
-      userId,
-      date,
-      state,
-      items
-    };
-
-    console.log('Submitting Shopping List:', shoppingList); // Debugging purpose
-    // Simulate successful submission...
-    setShowSuccessModal(true);
-
-    // Clear form after submission
-    setUserId('');
-    const today = new Date().toISOString().split('T')[0];
-    setDate(today);
-    setState('buy');
-    setItemId('');
-    setQuantity('');
-    setItems([]);
   };
 
   return (
@@ -165,13 +136,13 @@ const AddItem = () => {
             <hr />
 
             <div className="form-group mb-3">
-              <label>Item ID</label>
+              <label>Item Name</label>
               <input
                 type="text"
                 className="form-control"
-                value={itemId}
-                onChange={(e) => setItemId(e.target.value)}
-                placeholder="Enter Item ID"
+                value={itemName}
+                onChange={(e) => setItemName(e.target.value)} // Add this handler
+                placeholder="Enter Item Name"
                 required
               />
             </div>
@@ -197,7 +168,7 @@ const AddItem = () => {
           <button
             className="btn btn-success"
             type="button"
-            onClick={handleSubmit}
+            onClick={() => setShowSuccessModal(true)} // On successful submit
           >
             Submit Shopping List
           </button>
@@ -214,7 +185,7 @@ const AddItem = () => {
               <table className="table table-bordered table-hover">
                 <thead className="table-dark">
                   <tr>
-                    <th>Item ID</th>
+                    <th>Item Name</th>
                     <th>Quantity</th>
                     <th>Actions</th>
                   </tr>
@@ -222,7 +193,7 @@ const AddItem = () => {
                 <tbody>
                   {items.map((item, index) => (
                     <tr key={index}>
-                      <td>{item.itemId}</td>
+                      <td>{item.itemName}</td>
                       <td>{item.quantity}</td>
                       <td>
                         <button
@@ -245,14 +216,14 @@ const AddItem = () => {
             </div>
           )}
           {items.length > 0 && (
-              <button
-                type="button"
-                className="btn btn-danger float-end"
-                onClick={handleCancelAll}
-              >
-                Cancel All
-              </button>
-            )}
+            <button
+              type="button"
+              className="btn btn-danger float-end"
+              onClick={handleCancelAll}
+            >
+              Cancel All
+            </button>
+          )}
         </div>
       </div>
 
@@ -277,7 +248,7 @@ const AddItem = () => {
                 </div>
                 <div className="modal-body">
                   <div className="form-group mb-3">
-                    <label>Item ID</label>
+                    <label>Item Name</label>
                     <input
                       type="text"
                       className="form-control"
