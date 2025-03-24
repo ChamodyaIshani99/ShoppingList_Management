@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 const AddItem = () => {
   const [userId, setUserId] = useState('');
   const [date, setDate] = useState('');
+  const [state, setState] = useState('buy');
   const [itemId, setItemId] = useState('');
   const [quantity, setQuantity] = useState('');
   const [items, setItems] = useState([]);
@@ -118,7 +119,19 @@ const AddItem = () => {
                 required
               />
             </div>
-            
+            <div className="form-group mb-3">
+              <label>State</label>
+              <select
+                className="form-control"
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+              >
+                <option value="buy">Buy</option>
+                <option value="not buy">Not Buy</option>
+              </select>
+            </div>
+
+            <hr />
 
             <div className="form-group mb-3">
               <label>Item ID</label>
@@ -149,6 +162,8 @@ const AddItem = () => {
               Add Item
             </button>
           </form>
+          <br />
+          <input class="btn btn-success" type="submit" value="Submit"></input>
         </div>
 
         {/* Right Side Item List */}
