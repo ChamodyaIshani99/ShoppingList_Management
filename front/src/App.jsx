@@ -1,9 +1,9 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Mainshopping from "./components/Mainshopping";
-import AddItem from "./components/AddItem"; // Make sure this exists
-import AllShoppingList from "./components/AllShoppingList";
+import AddItem from "./components/AddItem"; 
 import Navbar from "./components/Navbar";
+import AllShoppingList from "./components/AllShoppingList";
 
 
 const App = () => {

@@ -11,6 +11,7 @@ const AddItem = () => {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [editItemId, setEditItemId] = useState('');
   const [editQuantity, setEditQuantity] = useState('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -90,6 +91,36 @@ const AddItem = () => {
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!userId || !date || !state || items.length === 0) {
+      alert('Please fill all fields and add at least one item before submitting!');
+      return;
+    }
+
+    // This is where you'd typically POST the data to your backend
+    const shoppingList = {
+      userId,
+      date,
+      state,
+      items
+    };
+
+    console.log('Submitting Shopping List:', shoppingList); // Debugging purpose
+    // Simulate successful submission...
+    setShowSuccessModal(true);
+
+    // Clear form after submission
+    setUserId('');
+    const today = new Date().toISOString().split('T')[0];
+    setDate(today);
+    setState('buy');
+    setItemId('');
+    setQuantity('');
+    setItems([]);
+  };
+
   return (
     <div className="container mt-4">
       <div className="row">
@@ -163,7 +194,13 @@ const AddItem = () => {
             </button>
           </form>
           <br />
-          <input class="btn btn-success" type="submit" value="Submit"></input>
+          <button
+            className="btn btn-success"
+            type="button"
+            onClick={handleSubmit}
+          >
+            Submit Shopping List
+          </button>
         </div>
 
         {/* Right Side Item List */}
@@ -278,9 +315,42 @@ const AddItem = () => {
           </div>
         </div>
       )}
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div
+          className="modal show fade d-block"
+          tabIndex="-1"
+          role="dialog"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+        >
+          <div className="modal-dialog modal-sm" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Success</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowSuccessModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p>Shopping list successfully submitted!</p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => setShowSuccessModal(false)}
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default AddItem;
-

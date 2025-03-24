@@ -6,19 +6,6 @@ const shoppingListSchema = new mongoose.Schema({
         required: true,
         ref: "User",
     },
-    items: [
-        {
-            itemName: {
-                type: String,
-                required: true
-            },
-            quantity: {
-                type: Number,
-                required: true,
-                min: [1, "Quantity must be at least 1"]
-            }
-        }
-    ],
     dateAdded: {
         type: Date,
         required: true,
@@ -36,7 +23,20 @@ const shoppingListSchema = new mongoose.Schema({
         enum: ["buy", "not"],
         required: true,
         default: "not"
-    }
+    },
+    items: [
+        {
+            itemName: {
+                type: String,
+                required: true
+            },
+            quantity: {
+                type: Number,
+                required: true,
+                min: [1, "Quantity must be at least 1"]
+            }
+        }
+    ]
 });
 
 const shoppingListModel = mongoose.model("ShoppingList", shoppingListSchema);

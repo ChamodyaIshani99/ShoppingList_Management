@@ -3,7 +3,7 @@ import shoppingListModel from "../models/shoppingModel.js";
 // Create - Add Shopping List
 const addList = async (req, res) => {
     try {
-        const { userId, items, dateAdded, status } = req.body;
+        const { userId, dateAdded, status,items } = req.body;
 
         // Validate duplicate items by itemName
         const itemNames = items.map(item => item.itemName);
@@ -23,9 +23,9 @@ const addList = async (req, res) => {
 
         const newList = new shoppingListModel({
             userId,
-            items,
             dateAdded,
-            status
+            status,
+            items
         });
 
         await newList.save();
@@ -87,7 +87,7 @@ const getAllLists = async (req, res) => {
 const updateList = async (req, res) => {
     try {
         const { id } = req.params;
-        const { items, dateAdded, status } = req.body;
+        const {  dateAdded, status,items } = req.body;
 
         if (items) {
             const itemNames = items.map(item => item.itemName);
@@ -109,9 +109,10 @@ const updateList = async (req, res) => {
         }
 
         const updatedList = await shoppingListModel.findByIdAndUpdate(id, {
-            items,
+            
             dateAdded,
-            status
+            status,
+            items
         }, { new: true });
 
         if (!updatedList) {
