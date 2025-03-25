@@ -8,7 +8,7 @@ const AddItem = () => {
   const [quantity, setQuantity] = useState("");
   const [shoppingListId, setShoppingListId] = useState("SL01");
   const [date, setDate] = useState("");
-  const [status, setStatus] = useState("buy");
+  const [status, setStatus] = useState("not");
   const [editingIndex, setEditingIndex] = useState(null);
   const [showModal, setShowModal] = useState(false);
 

@@ -16,7 +16,7 @@ const createList = async (req, res) => {
             shoppingId = `SL${lastIdNum + 1}`;
         } else {
             // If no previous shopping list exists, start from SL01
-            shoppingId = "SL01";
+            shoppingId = "SL1";
         }
 
         const shoppingList = new shoppingListModel({ shoppingId, dateAdded, status, items });
