@@ -1,95 +1,48 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
+import { Modal, Button } from "react-bootstrap"; 
 
 const AddItem = () => {
-  const [userId, setUserId] = useState('');
-  const [date, setDate] = useState('');
-  const [state, setState] = useState('buy');
+  const [items, setItems] = useState([]);
   const [itemName, setItemName] = useState('');
   const [quantity, setQuantity] = useState('');
-  const [items, setItems] = useState([]);
-  const [editIndex, setEditIndex] = useState(null);
-  const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const [editItemId, setEditItemId] = useState('');
-  const [editQuantity, setEditQuantity] = useState('');
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [editingIndex, setEditingIndex] = useState(null); // Track item being edited
+  const [showModal, setShowModal] = useState(false); // Control popup visibility
 
-  useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
-    setDate(today);
-  }, []);
-
+  // Function to add an item
   const handleAddItem = (e) => {
     e.preventDefault();
+    if (!itemName || quantity < 1) return;
 
-    if (!userId || !itemName || !quantity) {
-      alert('Please fill all fields');
-      return;
-    }
-
-    if (quantity <= 0) {
-      alert('Quantity must be greater than 0');
-      return;
-    }
-
-    const newItem = {
-      itemName, // Include itemName here
-      quantity
-    };
-
+    const newItem = { itemName, quantity };
     setItems([...items, newItem]);
-    setItemName(''); // Clear itemName field
-    setQuantity(''); // Clear quantity field
+    setItemName('');
+    setQuantity('');
   };
 
+  // Function to delete an item
   const handleDelete = (index) => {
-    const updatedItems = [...items];
-    updatedItems.splice(index, 1);
+    const updatedItems = items.filter((_, i) => i !== index);
     setItems(updatedItems);
   };
-
+  // Function to handle update
   const handleEdit = (index) => {
-    const item = items[index];
-    setEditItemId(item.itemName);  // Set editItemId to itemName
-    setEditQuantity(item.quantity);
-    setEditIndex(index);
-    setShowUpdateModal(true);
+    setEditingIndex(index);
+    setItemName(items[index].itemName);
+    setQuantity(items[index].quantity);
+    setShowModal(true);
   };
-
-  const handleUpdateItem = (e) => {
-    e.preventDefault();
-
-    if (!editItemId || !editQuantity) {
-      alert('Please fill all fields');
-      return;
-    }
-
-    if (editQuantity <= 0) {
-      alert('Quantity must be greater than 0');
-      return;
-    }
-
+  // Function to save updated item
+  const handleSaveChanges = () => {
     const updatedItems = [...items];
-    updatedItems[editIndex] = { itemName: editItemId, quantity: editQuantity };
-
+    updatedItems[editingIndex] = { itemName, quantity };
     setItems(updatedItems);
-    setShowUpdateModal(false);
-    setEditIndex(null);
+    setShowModal(false);
+    setEditingIndex(null);
+    setItemName("");
+    setQuantity("");
   };
-
   const handleCancelAll = () => {
     setItems([]);
-  };
-
-  const handleDateChange = (e) => {
-    const selectedDate = e.target.value;
-    const today = new Date().toISOString().split('T')[0];
-
-    if (selectedDate < today) {
-      alert("You can't select a past date!");
-    } else {
-      setDate(selectedDate);
-    }
   };
 
   return (
@@ -100,36 +53,20 @@ const AddItem = () => {
           <h2>Add New Item</h2>
           <form onSubmit={handleAddItem}>
             <div className="form-group mb-3">
-              <label>User ID</label>
-              <input
-                type="text"
-                className="form-control"
-                value={userId}
-                onChange={(e) => setUserId(e.target.value)}
-                placeholder="Enter User ID"
-                required
-              />
+              <label>ShoppingList ID</label>
+              <input type="text" className="form-control" required />
             </div>
 
             <div className="form-group mb-3">
               <label>Date</label>
-              <input
-                type="date"
-                className="form-control"
-                value={date}
-                onChange={handleDateChange}
-                required
-              />
+              <input type="date" className="form-control" required />
             </div>
+
             <div className="form-group mb-3">
-              <label>State</label>
-              <select
-                className="form-control"
-                value={state}
-                onChange={(e) => setState(e.target.value)}
-              >
+              <label>Status</label>
+              <select className="form-control">
                 <option value="buy">Buy</option>
-                <option value="not buy">Not Buy</option>
+                <option value="not">Not Buy</option>
               </select>
             </div>
 
@@ -140,10 +77,9 @@ const AddItem = () => {
               <input
                 type="text"
                 className="form-control"
-                value={itemName}
-                onChange={(e) => setItemName(e.target.value)} // Add this handler
-                placeholder="Enter Item Name"
                 required
+                value={itemName}
+                onChange={(e) => setItemName(e.target.value)}
               />
             </div>
 
@@ -152,11 +88,11 @@ const AddItem = () => {
               <input
                 type="number"
                 className="form-control"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
                 placeholder="Enter Quantity"
                 min="1"
                 required
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
               />
             </div>
 
@@ -164,12 +100,9 @@ const AddItem = () => {
               Add Item
             </button>
           </form>
+
           <br />
-          <button
-            className="btn btn-success"
-            type="button"
-            onClick={() => setShowSuccessModal(true)} // On successful submit
-          >
+          <button className="btn btn-success" type="button">
             Submit Shopping List
           </button>
         </div>
@@ -177,7 +110,6 @@ const AddItem = () => {
         {/* Right Side Item List */}
         <div className="col-md-6">
           <h2>Items List</h2>
-
           {items.length === 0 ? (
             <p>No items added yet</p>
           ) : (
@@ -196,7 +128,7 @@ const AddItem = () => {
                       <td>{item.itemName}</td>
                       <td>{item.quantity}</td>
                       <td>
-                        <button
+                      <button
                           className="btn btn-sm btn-warning me-2"
                           onClick={() => handleEdit(index)}
                         >
@@ -215,7 +147,7 @@ const AddItem = () => {
               </table>
             </div>
           )}
-          {items.length > 0 && (
+           {items.length > 0 && (
             <button
               type="button"
               className="btn btn-danger float-end"
@@ -226,102 +158,47 @@ const AddItem = () => {
           )}
         </div>
       </div>
-
       {/* Update Modal */}
-      {showUpdateModal && (
-        <div
-          className="modal show fade d-block"
-          tabIndex="-1"
-          role="dialog"
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-        >
-          <div className="modal-dialog modal-sm" role="document">
-            <div className="modal-content">
-              <form onSubmit={handleUpdateItem}>
-                <div className="modal-header">
-                  <h5 className="modal-title">Update Item</h5>
-                  <button
-                    type="button"
-                    className="btn-close"
-                    onClick={() => setShowUpdateModal(false)}
-                  ></button>
-                </div>
-                <div className="modal-body">
-                  <div className="form-group mb-3">
-                    <label>Item Name</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={editItemId}
-                      onChange={(e) => setEditItemId(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="form-group mb-3">
-                    <label>Quantity</label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      value={editQuantity}
-                      onChange={(e) => setEditQuantity(e.target.value)}
-                      min="1"
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button type="submit" className="btn btn-success">
-                    Update
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => setShowUpdateModal(false)}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Item</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="form-group mb-3">
+            <label>Item Name</label>
+            <input
+              type="text"
+              className="form-control"
+              required
+              value={itemName}
+              onChange={(e) => setItemName(e.target.value)}
+            />
           </div>
-        </div>
-      )}
-      {/* Success Modal */}
-      {showSuccessModal && (
-        <div
-          className="modal show fade d-block"
-          tabIndex="-1"
-          role="dialog"
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-        >
-          <div className="modal-dialog modal-sm" role="document">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Success</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowSuccessModal(false)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <p>Shopping list successfully submitted!</p>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => setShowSuccessModal(false)}
-                >
-                  OK
-                </button>
-              </div>
-            </div>
+
+          <div className="form-group mb-3">
+            <label>Quantity</label>
+            <input
+              type="number"
+              className="form-control"
+              min="1"
+              required
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+            />
           </div>
-        </div>
-      )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleSaveChanges}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
 
 export default AddItem;
+
