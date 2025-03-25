@@ -37,10 +37,12 @@ const AllShoppingList = () => {
 
   const handleUpdateClick = (list) => {
     setSelectedList(list);
-    setUpdatedList({ status: list.status, items: [...list.items] });
+    setUpdatedList({ 
+      status: list.status, 
+      items: list.items.map(item => ({ itemName: item.itemName, quantity: item.quantity }))
+    });
     setShowUpdateModal(true);
   };
-
   const handleDeleteClick = (list) => {
     setSelectedList(list);
     setShowDeleteModal(true);
@@ -52,7 +54,7 @@ const AllShoppingList = () => {
 
   const handleItemChange = (index, value) => {
     const newItems = [...updatedList.items];
-    newItems[index].name = value;
+    newItems[index].itemName = value;
     setUpdatedList({ ...updatedList, items: newItems });
   };
 
@@ -125,7 +127,7 @@ const AllShoppingList = () => {
  </td>
                   <td>
                     <Button variant="info" onClick={() => handleViewClick(list._id)}>View</Button>
-                    <Button variant="primary" onClick={() => handleUpdateClick(list)}>Update</Button>
+                    <Button variant="primary" className="me-2" onClick={() => handleUpdateClick(list)}>Update</Button>
                     <Button variant="danger" onClick={() => handleDeleteClick(list)} className="ms-2">Delete</Button>
                   </td>
                 </tr>
@@ -155,16 +157,41 @@ const AllShoppingList = () => {
           <Form>
             <Form.Group>
               <Form.Label>Status</Form.Label>
-              <Form.Control name="status" value={updatedList.status} onChange={handleUpdateChange} />
+              <Form.Select name="status" value={updatedList.status} onChange={handleUpdateChange}>
+                <option value="not">Not Buy</option>
+                <option value="buy">Buy</option>
+              </Form.Select>
             </Form.Group>
             <h5 className="mt-3">Items</h5>
-            {updatedList.items.map((item, index) => (
-              <div key={index} className="d-flex mb-2">
-                <Form.Control className="me-2" value={item.name} onChange={(e) => handleItemChange(index, e.target.value)} />
-                <Form.Control type="number" className="me-2" value={item.quantity} onChange={(e) => handleQuantityChange(index, e.target.value)} />
-                <Button variant="danger" onClick={() => handleRemoveItem(index)}>-</Button>
-              </div>
-            ))}
+            <Table striped bordered hover>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Item Name</th>
+                  <th>Quantity</th>
+                </tr>
+              </thead>
+              <tbody>
+                {updatedList.items.map((item, index) => (
+                  <tr key={index}>
+                    <td>{index + 1}</td>
+                    <td>
+                      <Form.Control 
+                        value={item.itemName} 
+                        onChange={(e) => handleItemChange(index, e.target.value)} 
+                      />
+                    </td>
+                    <td>
+                      <Form.Control 
+                        type="number"
+                        value={item.quantity}
+                        onChange={(e) => handleQuantityChange(index, e.target.value)}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
             <Button variant="success" onClick={handleAddItem} className="mt-2">+ Add Item</Button>
           </Form>
         </Modal.Body>
