@@ -1,39 +1,72 @@
-import React, { useState } from 'react';
-import { Modal, Button } from "react-bootstrap"; 
+import React, { useState, useEffect } from "react";
+import { Modal, Button } from "react-bootstrap";
 
 const AddItem = () => {
   const [items, setItems] = useState([]);
-  const [itemName, setItemName] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [editingIndex, setEditingIndex] = useState(null); // Track item being edited
-  const [showModal, setShowModal] = useState(false); // Control popup visibility
+  const [itemName, setItemName] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [shoppingListId, setShoppingListId] = useState("SL01");
+  const [date, setDate] = useState("");
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
-  // Function to add an item
+  // Generate Shopping List ID
+  useEffect(() => {
+    setShoppingListId(`SL${String(items.length + 1).padStart(2, "0")}`);
+  }, [items]);
+
+  // Set default date to today
+  useEffect(() => {
+    const today = new Date().toISOString().split("T")[0];
+    setDate(today);
+  }, []);
+
+  // Handle item addition
   const handleAddItem = (e) => {
     e.preventDefault();
     if (!itemName || quantity < 1) return;
 
+    // Prevent duplicate item names
+    if (items.some((item) => item.itemName.toLowerCase() === itemName.toLowerCase())) {
+      alert("Item already exists in the shopping list!");
+      return;
+    }
+
     const newItem = { itemName, quantity };
     setItems([...items, newItem]);
-    setItemName('');
-    setQuantity('');
+    setItemName("");
+    setQuantity("");
   };
 
-  // Function to delete an item
+  // Handle item deletion
   const handleDelete = (index) => {
     const updatedItems = items.filter((_, i) => i !== index);
     setItems(updatedItems);
   };
-  // Function to handle update
+
+  // Handle item update
   const handleEdit = (index) => {
     setEditingIndex(index);
     setItemName(items[index].itemName);
     setQuantity(items[index].quantity);
     setShowModal(true);
   };
-  // Function to save updated item
+
+  // Save updated item
   const handleSaveChanges = () => {
     const updatedItems = [...items];
+
+    // Prevent duplicate item names in edit mode
+    if (
+      items.some(
+        (item, idx) =>
+          idx !== editingIndex && item.itemName.toLowerCase() === itemName.toLowerCase()
+      )
+    ) {
+      alert("Item already exists in the shopping list!");
+      return;
+    }
+
     updatedItems[editingIndex] = { itemName, quantity };
     setItems(updatedItems);
     setShowModal(false);
@@ -41,6 +74,8 @@ const AddItem = () => {
     setItemName("");
     setQuantity("");
   };
+
+  // Handle cancel all items
   const handleCancelAll = () => {
     setItems([]);
   };
@@ -54,12 +89,19 @@ const AddItem = () => {
           <form onSubmit={handleAddItem}>
             <div className="form-group mb-3">
               <label>ShoppingList ID</label>
-              <input type="text" className="form-control" required />
+              <input type="text" className="form-control" value={shoppingListId} disabled />
             </div>
 
             <div className="form-group mb-3">
               <label>Date</label>
-              <input type="date" className="form-control" required />
+              <input
+                type="date"
+                className="form-control"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                min={new Date().toISOString().split("T")[0]} // Restrict past dates
+                required
+              />
             </div>
 
             <div className="form-group mb-3">
@@ -128,7 +170,7 @@ const AddItem = () => {
                       <td>{item.itemName}</td>
                       <td>{item.quantity}</td>
                       <td>
-                      <button
+                        <button
                           className="btn btn-sm btn-warning me-2"
                           onClick={() => handleEdit(index)}
                         >
@@ -147,7 +189,7 @@ const AddItem = () => {
               </table>
             </div>
           )}
-           {items.length > 0 && (
+          {items.length > 0 && (
             <button
               type="button"
               className="btn btn-danger float-end"
@@ -158,6 +200,7 @@ const AddItem = () => {
           )}
         </div>
       </div>
+
       {/* Update Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
@@ -201,4 +244,5 @@ const AddItem = () => {
 };
 
 export default AddItem;
+
 
