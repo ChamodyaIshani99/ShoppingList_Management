@@ -1,22 +1,15 @@
 import mongoose from "mongoose";
 
 const shoppingListSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        ref: "User",
+    shoppingId: {
+        type: String, 
+        unique: true,
+        required: true
     },
     dateAdded: {
         type: Date,
-        required: true,
-        validate: {
-            validator: function (value) {
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                return value >= today;
-            },
-            message: "Date cannot be in the past"
-        }
+        required: true
+        
     },
     status: {
         type: String,
@@ -32,12 +25,12 @@ const shoppingListSchema = new mongoose.Schema({
             },
             quantity: {
                 type: Number,
-                required: true,
-                min: [1, "Quantity must be at least 1"]
+                required: true
             }
         }
     ]
 });
+
 
 const shoppingListModel = mongoose.model("ShoppingList", shoppingListSchema);
 

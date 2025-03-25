@@ -1,165 +1,75 @@
 import shoppingListModel from "../models/shoppingModel.js";
 
-// Create - Add Shopping List
-const addList = async (req, res) => {
+// Create a new shopping list
+const createList = async (req, res) => {
     try {
-        const { userId, dateAdded, status,items } = req.body;
+        const { dateAdded, status, items } = req.body;
 
-        // Validate duplicate items by itemName
-        const itemNames = items.map(item => item.itemName);
-        const uniqueItemNames = new Set(itemNames);
+        // Find the last inserted shopping list entry
+        const lastList = await shoppingListModel.findOne().sort({ shoppingId: -1 });
 
-        if (itemNames.length !== uniqueItemNames.size) {
-            return res.status(400).json({ message: "Duplicate items are not allowed in a shopping list." });
+        let shoppingId;
+
+        if (lastList && lastList.shoppingId) {
+            // Extract numeric part and increment it
+            const lastIdNum = parseInt(lastList.shoppingId.substring(2)); 
+            shoppingId = `SL${lastIdNum + 1}`;
+        } else {
+            // If no previous shopping list exists, start from SL01
+            shoppingId = "SL01";
         }
 
-        // Validate dateAdded (should be today or future)
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const addDate = new Date(dateAdded);
-        if (addDate < today) {
-            return res.status(400).json({ message: "Date cannot be in the past." });
-        }
-
-        const newList = new shoppingListModel({
-            userId,
-            dateAdded,
-            status,
-            items
-        });
-
-        await newList.save();
-
-        res.status(201).json({ message: "Shopping list added successfully", shoppingList: newList });
+        const shoppingList = new shoppingListModel({ shoppingId, dateAdded, status, items });
+        await shoppingList.save();
+        res.status(201).json(shoppingList);
     } catch (error) {
-        res.status(500).json({ message: "Error adding shopping list", error: error.message });
-    }
-};
-
-// Get One Shopping List by ID
-const getShoppingListById = async (req, res) => {
-    const { id } = req.params;
-
-    try {
-        const shoppingList = await shoppingListModel.findById(id);
-
-        if (!shoppingList) {
-            return res.status(404).json({ message: "Shopping list not found" });
-        }
-
-        res.status(200).json(shoppingList);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching shopping list", error: error.message });
+        res.status(400).json({ message: error.message });
     }
 };
 
 
-// Read - Get All Shopping Lists (with filters: weekly, monthly, status search)
+
+// Get all shopping lists
 const getAllLists = async (req, res) => {
     try {
-        const { filter, status } = req.query;
-
-        let filterQuery = {};
-
-        if (status) {
-            filterQuery.status = status;
-        }
-
-        const today = new Date();
-
-        if (filter === "weekly") {
-            const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
-            filterQuery.dateAdded = { $gte: startOfWeek };
-        } else if (filter === "monthly") {
-            const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-            filterQuery.dateAdded = { $gte: startOfMonth };
-        }
-
-        const lists = await shoppingListModel.find(filterQuery);
-
-        res.status(200).json(lists);
+        const shoppingLists = await shoppingListModel.find();
+        res.status(200).json(shoppingLists);
     } catch (error) {
-        res.status(500).json({ message: "Error fetching shopping lists", error: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
 
-// Update - Update Shopping List by ID
+// Get a single shopping list by ID
+const getListById = async (req, res) => {
+    try {
+        const shoppingList = await shoppingListModel.findById(req.params.id);
+        if (!shoppingList) return res.status(404).json({ message: "Shopping list not found" });
+        res.status(200).json(shoppingList);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Update a shopping list
 const updateList = async (req, res) => {
     try {
-        const { id } = req.params;
-        const {  dateAdded, status,items } = req.body;
-
-        if (items) {
-            const itemNames = items.map(item => item.itemName);
-            const uniqueItemNames = new Set(itemNames);
-
-            if (itemNames.length !== uniqueItemNames.size) {
-                return res.status(400).json({ message: "Duplicate items are not allowed in a shopping list." });
-            }
-        }
-
-        if (dateAdded) {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const updateDate = new Date(dateAdded);
-
-            if (updateDate < today) {
-                return res.status(400).json({ message: "Date cannot be in the past." });
-            }
-        }
-
-        const updatedList = await shoppingListModel.findByIdAndUpdate(id, {
-            
-            dateAdded,
-            status,
-            items
-        }, { new: true });
-
-        if (!updatedList) {
-            return res.status(404).json({ message: "Shopping list not found" });
-        }
-
-        res.status(200).json({ message: "Shopping list updated successfully", shoppingList: updatedList });
+        const updatedShoppingList = await shoppingListModel.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+        if (!updatedShoppingList) return res.status(404).json({ message: "Shopping list not found" });
+        res.status(200).json(updatedShoppingList);
     } catch (error) {
-        res.status(500).json({ message: "Error updating shopping list", error: error.message });
+        res.status(400).json({ message: error.message });
     }
 };
 
-// Delete - Delete Shopping List by ID
+// Delete a shopping list
 const deleteList = async (req, res) => {
     try {
-        const { id } = req.params;
-
-        const deletedList = await shoppingListModel.findByIdAndDelete(id);
-
-        if (!deletedList) {
-            return res.status(404).json({ message: "Shopping list not found" });
-        }
-
+        const deletedShoppingList = await shoppingListModel.findByIdAndDelete(req.params.id);
+        if (!deletedShoppingList) return res.status(404).json({ message: "Shopping list not found" });
         res.status(200).json({ message: "Shopping list deleted successfully" });
     } catch (error) {
-        res.status(500).json({ message: "Error deleting shopping list", error: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
-// Search Shopping Lists by Status
-/*const searchShoppingListsByStatus = async (req, res) => {
-    const { status } = req.query;
 
-    try {
-        if (!status) {
-            return res.status(400).json({ message: "Status query param is required" });
-        }
-
-        const lists = await shoppingListModel.find({ status: status });
-
-        if (lists.length === 0) {
-            return res.status(404).json({ message: "No shopping lists found with this status" });
-        }
-
-        res.status(200).json(lists);
-    } catch (error) {
-        res.status(500).json({ message: "Error searching shopping lists", error: error.message });
-    }
-};*/
-
-export { addList, getAllLists, updateList, deleteList ,getShoppingListById};
+export { createList, getAllLists, getListById, updateList, deleteList };
