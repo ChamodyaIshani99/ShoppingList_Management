@@ -100,13 +100,14 @@ const AllShoppingList = () => {
               <th>Shopping ID</th>
               <th>Date</th>
               <th>Status</th>
+              <th>Items</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {shoppingLists.length === 0 ? (
               <tr>
-                <td colSpan="5" className="text-center">No shopping lists found</td>
+                <td colSpan="6" className="text-center">No shopping lists found</td>
               </tr>
             ) : (
               shoppingLists.map((list, index) => (
@@ -115,6 +116,13 @@ const AllShoppingList = () => {
                   <td>{list.shoppingId}</td>
                   <td>{new Date(list.dateAdded).toLocaleDateString()}</td>
                   <td>{list.status}</td>
+                  <td>
+   <ul className="list-unstyled mb-0">
+     {list.items.map((item, index) => (
+       <li key={index}>{item.itemName || "Unknown"} - {item.quantity || 0}</li>
+     ))}
+   </ul>
+ </td>
                   <td>
                     <Button variant="info" onClick={() => handleViewClick(list._id)}>View</Button>
                     <Button variant="primary" onClick={() => handleUpdateClick(list)}>Update</Button>
