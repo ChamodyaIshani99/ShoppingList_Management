@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button } from "react-bootstrap";
+import axios from "axios";
 
 const AddItem = () => {
   const [items, setItems] = useState([]);
@@ -7,13 +8,16 @@ const AddItem = () => {
   const [quantity, setQuantity] = useState("");
   const [shoppingListId, setShoppingListId] = useState("SL01");
   const [date, setDate] = useState("");
+  const [status, setStatus] = useState("buy");
   const [editingIndex, setEditingIndex] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
   // Generate Shopping List ID
   useEffect(() => {
-    setShoppingListId(`SL${String(items.length + 1).padStart(2, "0")}`);
-  }, [items]);
+    setShoppingListId(`SL${Date.now()}`); // Unique timestamp-based ID
+}, []);
+
+
 
   // Set default date to today
   useEffect(() => {
@@ -80,6 +84,33 @@ const AddItem = () => {
     setItems([]);
   };
 
+  // Handle shopping list submission
+  const handleSubmitShoppingList = () => {
+    const shoppingList = {
+      shoppingId: shoppingListId,  // Ensure this field is included
+      dateAdded: date,
+      status,
+      items,
+    };
+    
+
+    // Log the shopping list object to inspect its structure
+    console.log("Submitting Shopping List:", shoppingList);
+
+    axios
+      .post("http://localhost:4000/api/shoppingList/add", shoppingList)
+      .then(() => {
+        alert("Shopping List Added");
+        setItems([]);
+        setItemName("");
+        setQuantity("");
+      })
+      .catch((err) => {
+        console.error("Error submitting shopping list:", err);
+        alert("Error submitting shopping list: " + (err.response ? err.response.data.message : err.message));
+      });
+  };
+
   return (
     <div className="container mt-4">
       <div className="row">
@@ -106,7 +137,7 @@ const AddItem = () => {
 
             <div className="form-group mb-3">
               <label>Status</label>
-              <select className="form-control">
+              <select className="form-control" value={status} onChange={(e) => setStatus(e.target.value)}>
                 <option value="buy">Buy</option>
                 <option value="not">Not Buy</option>
               </select>
@@ -144,7 +175,7 @@ const AddItem = () => {
           </form>
 
           <br />
-          <button className="btn btn-success" type="button">
+          <button className="btn btn-success" type="button" onClick={handleSubmitShoppingList}>
             Submit Shopping List
           </button>
         </div>
@@ -244,5 +275,3 @@ const AddItem = () => {
 };
 
 export default AddItem;
-
-
