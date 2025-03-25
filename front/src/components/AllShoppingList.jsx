@@ -7,6 +7,7 @@ const AllShoppingList = () => {
   const [shoppingLists, setShoppingLists] = useState([]);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
   const [selectedList, setSelectedList] = useState(null);
   const [updatedList, setUpdatedList] = useState({ status: "", items: [] });
 
@@ -15,14 +16,23 @@ const AllShoppingList = () => {
   }, []);
 
   const fetchShoppingLists = () => {
-    axios
-      .get("http://localhost:4000/api/shoppingList/")
+    axios.get("http://localhost:4000/api/shoppingList/")
       .then((response) => {
         setShoppingLists(response.data);
       })
       .catch((error) => {
         console.error("Error fetching shopping lists:", error);
       });
+  };
+
+  const handleViewClick = async (id) => {
+    try {
+      const response = await axios.get(`http://localhost:4000/api/shoppingList/${id}`);
+      setSelectedList(response.data);
+      setShowViewModal(true);
+    } catch (error) {
+      console.error("Error fetching shopping list details:", error);
+    }
   };
 
   const handleUpdateClick = (list) => {
@@ -58,12 +68,7 @@ const AllShoppingList = () => {
       items: [...updatedList.items, { name: "", quantity: 1 }],
     });
   };
-
-  const handleRemoveItem = (index) => {
-    const newItems = updatedList.items.filter((_, i) => i !== index);
-    setUpdatedList({ ...updatedList, items: newItems });
-  };
-
+  
   const handleUpdateSubmit = async () => {
     try {
       await axios.put(`http://localhost:4000/api/shoppingList/update/${selectedList._id}`, updatedList);
@@ -73,7 +78,6 @@ const AllShoppingList = () => {
       console.error("Error updating shopping list:", error);
     }
   };
-
   const handleDeleteConfirm = async () => {
     try {
       await axios.delete(`http://localhost:4000/api/shoppingList/delete/${selectedList._id}`);
@@ -83,6 +87,7 @@ const AllShoppingList = () => {
       console.error("Error deleting shopping list:", error);
     }
   };
+
 
   return (
     <div className="container mt-4">
@@ -95,14 +100,13 @@ const AllShoppingList = () => {
               <th>Shopping ID</th>
               <th>Date</th>
               <th>Status</th>
-              <th>Items</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {shoppingLists.length === 0 ? (
               <tr>
-                <td colSpan="6" className="text-center">No shopping lists found</td>
+                <td colSpan="5" className="text-center">No shopping lists found</td>
               </tr>
             ) : (
               shoppingLists.map((list, index) => (
@@ -112,14 +116,7 @@ const AllShoppingList = () => {
                   <td>{new Date(list.dateAdded).toLocaleDateString()}</td>
                   <td>{list.status}</td>
                   <td>
-  <ul className="list-unstyled mb-0">
-    {list.items.map((item, index) => (
-      <li key={index}>{item.itemName || "Unknown"} - {item.quantity || 0}</li>
-    ))}
-  </ul>
-</td>
-
-                  <td>
+                    <Button variant="info" onClick={() => handleViewClick(list._id)}>View</Button>
                     <Button variant="primary" onClick={() => handleUpdateClick(list)}>Update</Button>
                     <Button variant="danger" onClick={() => handleDeleteClick(list)} className="ms-2">Delete</Button>
                   </td>
@@ -129,6 +126,17 @@ const AllShoppingList = () => {
           </tbody>
         </Table>
       </div>
+            {/* Delete Confirmation Modal */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to delete this shopping list?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>Cancel</Button>
+          <Button variant="danger" onClick={handleDeleteConfirm}>Delete</Button>
+        </Modal.Footer>
+      </Modal>
 
       {/* Update Modal */}
       <Modal show={showUpdateModal} onHide={() => setShowUpdateModal(false)}>
@@ -158,15 +166,41 @@ const AllShoppingList = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+      {/* View Modal */}
+      <Modal show={showViewModal} onHide={() => setShowViewModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Confirm Deletion</Modal.Title>
+          <Modal.Title>Shopping List Details</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Are you sure you want to delete this shopping list?</Modal.Body>
+        <Modal.Body>
+          {selectedList && (
+            <>
+              <p><strong>Shopping ID:</strong> {selectedList.shoppingId}</p>
+              <p><strong>Date Added:</strong> {new Date(selectedList.dateAdded).toLocaleDateString()}</p>
+              <p><strong>Status:</strong> {selectedList.status}</p>
+              <h5>Items</h5>
+              <Table striped bordered>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Item Name</th>
+                    <th>Quantity</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedList.items.map((item, index) => (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+                      <td>{item.itemName}</td>
+                      <td>{item.quantity}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </>
+          )}
+        </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>Cancel</Button>
-          <Button variant="danger" onClick={handleDeleteConfirm}>Delete</Button>
+          <Button variant="secondary" onClick={() => setShowViewModal(false)}>Close</Button>
         </Modal.Footer>
       </Modal>
     </div>
