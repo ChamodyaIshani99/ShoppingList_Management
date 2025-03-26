@@ -117,7 +117,8 @@ const AddItem = () => {
         {/* Left Side Form */}
         <div className="col-md-6">
           <h2>Add New Item</h2>
-          <form onSubmit={handleAddItem}>
+          <br />
+          <form onSubmit={handleAddItem} style={{ backgroundColor: "#f0f0f0", padding: "20px", borderRadius: "8px" }}>
             <div className="form-group mb-3">
               <label>ShoppingList ID</label>
               <input type="text" className="form-control" value={shoppingListId} disabled />
@@ -144,7 +145,7 @@ const AddItem = () => {
             </div>
 
             <hr />
-
+            <div style={{ backgroundColor: "#848587 ", padding: "20px", borderRadius: "8px" }}>
             <div className="form-group mb-3">
               <label>Item Name</label>
               <input
@@ -168,7 +169,8 @@ const AddItem = () => {
                 onChange={(e) => setQuantity(e.target.value)}
               />
             </div>
-
+            </div>
+            <br />
             <button type="submit" className="btn btn-primary me-2">
               Add Item
             </button>
