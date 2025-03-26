@@ -1,0 +1,59 @@
+.image-container {
+    display: flex;
+    align-items: center;  /* Vertically centers the image */
+    justify-content: flex-end; /* Aligns the image to the right */
+    gap: 20px; /* Adds space between the button and the image */
+    width: 100%; /* Ensures the container takes full available width */
+  }
+  
+  .scroll-btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease;
+  }
+  
+  .scroll-btn:hover {
+    background-color: #0056b3;
+  }
+  
+  .animated-image {
+    max-width: 100%; /* Make the image responsive */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transform: translateX(100%);
+    animation: slideIn 1.5s ease-in-out forwards;
+    height: 550px; /* Fixed height */
+  }
+  @keyframes slideInFromLeft {
+    from {
+      transform: translateX(-100%); /* Start from the left */
+      opacity: 0; /* Start with no opacity */
+    }
+    to {
+      transform: translateX(0); /* Move to original position */
+      opacity: 1; /* Fully visible */
+    }
+  }
+  
+  .card {
+    animation: slideInFromLeft 1.5s ease-out forwards;
+  }
+  
+  /* Slide in from right animation */
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
