@@ -2,6 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom';
 import './MainShopping.css'
 
+
 const Mainshopping = () => {
 
     const navigate=useNavigate();
@@ -12,6 +13,9 @@ const Mainshopping = () => {
       const handleViewAllClick = () => {
         navigate('/allshoppinglist');
       };
+       const handleGenerateReportClick = () => {
+        navigate('/shoppinglistreport'); // Make sure this matches your route
+    };
 
     return (
 
@@ -47,6 +51,13 @@ const Mainshopping = () => {
             >
                 View All Shopping List
             </button>
+            <button 
+                        type="button" 
+                        className="btn btn-success btn-lg btn-block mt-3" 
+                        onClick={handleGenerateReportClick}
+                    >
+                        Generate Report
+                    </button>
         </div>
     </div>
 </div>
