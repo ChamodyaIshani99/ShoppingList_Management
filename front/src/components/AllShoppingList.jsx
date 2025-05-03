@@ -108,6 +108,13 @@ const AllShoppingList = () => {
     setSelectedList({ ...selectedList, items: updatedItems });
   };
 
+  const [filterStatus, setFilterStatus] = useState("all");
+const filteredShoppingLists = shoppingLists.filter((list) => {
+  if (filterStatus === "all") return true;
+  return list.status === filterStatus;
+});
+
+
 
   return (
     <div className="container mt-4">
@@ -145,6 +152,20 @@ const AllShoppingList = () => {
 
      
       <br />
+      <div className="mb-3 d-flex align-items-center gap-2">
+  <label htmlFor="statusFilter" className="form-label fw-bold">Filter by Status:</label>
+  <Form.Select
+    id="statusFilter"
+    value={filterStatus}
+    onChange={(e) => setFilterStatus(e.target.value)}
+    style={{ maxWidth: "200px" }}
+  >
+    <option value="all">All</option>
+    <option value="buy">Buy</option>
+    <option value="not">Not Buy</option>
+  </Form.Select>
+</div>
+
       <div className="table-responsive" ref={tableRef}>
   <Table striped bordered hover className="text-center">
     <thead class="table table-bordered table-dark">
@@ -158,12 +179,12 @@ const AllShoppingList = () => {
       </tr>
     </thead>
     <tbody>
-      {shoppingLists.length === 0 ? (
+      {filteredShoppingLists.length === 0 ? (
         <tr>
           <td colSpan="6" className="text-center">No shopping lists found</td>
         </tr>
       ) : (
-        shoppingLists.map((list, index) => (
+        filteredShoppingLists.map((list, index) => (
           <tr key={list._id} className={index % 2 === 0 ? "table-light" : "table-secondary"}>
             <td>{index + 1}</td>
             <td>{list.shoppingId}</td>
