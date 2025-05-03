@@ -13,11 +13,12 @@
     "axios": "^1.8.4",
     "bootstrap": "^5.3.3",
     "dayjs": "^1.11.13",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.1",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.4.0",
-    "react-to-print": "^3.1.0"
+    "react-router-dom": "^7.4.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
