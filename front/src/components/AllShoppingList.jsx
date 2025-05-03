@@ -109,10 +109,14 @@ const AllShoppingList = () => {
   };
 
   const [filterStatus, setFilterStatus] = useState("all");
+  const [searchId, setSearchId] = useState("");
+
 const filteredShoppingLists = shoppingLists.filter((list) => {
-  if (filterStatus === "all") return true;
-  return list.status === filterStatus;
+  const matchesStatus = filterStatus === "all" || list.status === filterStatus;
+  const matchesSearch = list.shoppingId.toLowerCase().includes(searchId.toLowerCase());
+  return matchesStatus && matchesSearch;
 });
+
 
 
 
@@ -152,19 +156,34 @@ const filteredShoppingLists = shoppingLists.filter((list) => {
 
      
       <br />
-      <div className="mb-3 d-flex align-items-center gap-2">
-  <label htmlFor="statusFilter" className="form-label fw-bold">Filter by Status:</label>
-  <Form.Select
-    id="statusFilter"
-    value={filterStatus}
-    onChange={(e) => setFilterStatus(e.target.value)}
-    style={{ maxWidth: "200px" }}
-  >
-    <option value="all">All</option>
-    <option value="buy">Buy</option>
-    <option value="not">Not Buy</option>
-  </Form.Select>
+     <div className="mb-3 d-flex align-items-center flex-wrap">
+  <div className="d-flex align-items-center gap-2">
+    <label htmlFor="statusFilter" className="form-label fw-bold mb-0">Filter by Status:</label>
+    <Form.Select
+      id="statusFilter"
+      value={filterStatus}
+      onChange={(e) => setFilterStatus(e.target.value)}
+      style={{ maxWidth: "200px" }}
+    >
+      <option value="all">All</option>
+      <option value="buy">Buy</option>
+      <option value="not">Not Buy</option>
+    </Form.Select>
+  </div>
+
+  <div className="d-flex align-items-center gap-2 ms-5">
+    <label htmlFor="searchId" className="form-label fw-bold mb-0">Search by ID:</label>
+    <Form.Control
+      type="text"
+      id="searchId"
+      placeholder="Enter Shopping ID"
+      value={searchId}
+      onChange={(e) => setSearchId(e.target.value)}
+      style={{ maxWidth: "250px" }}
+    />
+  </div>
 </div>
+
 
       <div className="table-responsive" ref={tableRef}>
   <Table striped bordered hover className="text-center">
