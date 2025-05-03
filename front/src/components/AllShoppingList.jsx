@@ -98,6 +98,15 @@ const AllShoppingList = () => {
   const scrollToTable = () => {
     tableRef.current.scrollIntoView({ behavior: "smooth" });
   };
+  const handleCheckboxChange = (index) => {
+    // Update the item’s `isChecked` status
+    const updatedItems = selectedList.items.map((item, i) => 
+      i === index ? { ...item, isChecked: !item.isChecked } : item
+    );
+    
+    // Update the selectedList with the modified items
+    setSelectedList({ ...selectedList, items: updatedItems });
+  };
 
 
   return (
@@ -255,43 +264,52 @@ const AllShoppingList = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* View Modal */}
-      <Modal show={showViewModal} onHide={() => setShowViewModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Shopping List Details</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedList && (
-            <>
-              <p><strong>Shopping ID:</strong> {selectedList.shoppingId}</p>
-              <p><strong>Date Added:</strong> {new Date(selectedList.dateAdded).toLocaleDateString()}</p>
-              <p><strong>Status:</strong> {selectedList.status}</p>
-              <h5>Items</h5>
-              <Table striped bordered>
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Item Name</th>
-                    <th>Quantity</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selectedList.items.map((item, index) => (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      <td>{item.itemName}</td>
-                      <td>{item.quantity}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowViewModal(false)}>Close</Button>
-        </Modal.Footer>
-      </Modal>
+     {/* View Modal */}
+<Modal show={showViewModal} onHide={() => setShowViewModal(false)}>
+  <Modal.Header closeButton>
+    <Modal.Title>Shopping List Details</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {selectedList && (
+      <>
+        <p><strong>Shopping ID:</strong> {selectedList.shoppingId}</p>
+        <p><strong>Date Added:</strong> {new Date(selectedList.dateAdded).toLocaleDateString()}</p>
+        <p><strong>Status:</strong> {selectedList.status}</p>
+        <h5>Items</h5>
+        <Table striped bordered>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Item Name</th>
+              <th>Quantity</th>
+              <th>Checkout</th> {/* New column for checkbox */}
+            </tr>
+          </thead>
+          <tbody>
+            {selectedList.items.map((item, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
+                <td>{item.itemName}</td>
+                <td>{item.quantity}</td>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={item.isChecked || false} // Track if the item is checked
+                    onChange={() => handleCheckboxChange(index)} // Handle checkbox change
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </>
+    )}
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={() => setShowViewModal(false)}>Close</Button>
+  </Modal.Footer>
+</Modal>
+
     </div>
   );
 };

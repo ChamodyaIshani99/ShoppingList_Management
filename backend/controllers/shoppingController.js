@@ -1,25 +1,33 @@
 import shoppingListModel from "../models/shoppingModel.js";
 
+// Generate the next shoppingId safely
+const generateNextShoppingId = async () => {
+    const allLists = await shoppingListModel.find({});
+    let maxId = 0;
+
+    allLists.forEach(list => {
+        const num = parseInt(list.shoppingId.replace("SL", ""));
+        if (!isNaN(num) && num > maxId) {
+            maxId = num;
+        }
+    });
+
+    return `SL${maxId + 1}`;
+};
+
 // Create a new shopping list
 const createList = async (req, res) => {
     try {
         const { dateAdded, status, items } = req.body;
+        const shoppingId = await generateNextShoppingId();
 
-        // Find the last inserted shopping list entry
-        const lastList = await shoppingListModel.findOne().sort({ shoppingId: -1 });
+        const shoppingList = new shoppingListModel({
+            shoppingId,
+            dateAdded,
+            status,
+            items
+        });
 
-        let shoppingId;
-
-        if (lastList && lastList.shoppingId) {
-            // Extract numeric part and increment it
-            const lastIdNum = parseInt(lastList.shoppingId.substring(2)); 
-            shoppingId = `SL${lastIdNum + 1}`;
-        } else {
-            // If no previous shopping list exists, start from SL01
-            shoppingId = "SL1";
-        }
-
-        const shoppingList = new shoppingListModel({ shoppingId, dateAdded, status, items });
         await shoppingList.save();
         res.status(201).json(shoppingList);
     } catch (error) {

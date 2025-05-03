@@ -7,7 +7,7 @@ const Navbar = () => {
 
       <nav className="navbar navbar-expand-lg bg-body-tertiary" >
 
-        <div className="container-fluid" style={{backgroundColor:'#c3c5c5'}}>
+        <div className="container-fluid" style={{backgroundColor:'#8cbdf9'}}>
 
           <button
             data-mdb-collapse-init
